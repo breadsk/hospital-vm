@@ -9,13 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PacienteRepository extends JpaRepository<Paciente, Long>{
+public interface PacienteRepository extends JpaRepository<Paciente, Integer>{
 
-    // No necesitas agregar ningun método, JpaRepository ya tiene findAll() implementado
+    //No necesitas agregar ningun método, JpaRepository ya tiene findAll() implementado
+    //No necesitas agregar findId ya que lo incluye
 
-
-    //Usando JPQL
-    //@Query("SELECT p FROM Paciente p")
-    //List<Paciente> findAll();
-    //No necesitas definir el método findAll(), 
+    
 }
