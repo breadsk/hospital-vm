@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
 public class PacienteService {
 
     @Autowired
@@ -19,4 +19,7 @@ public class PacienteService {
         return pacienteRepository.findAll();
     }
 
+    public Optional<Paciente> getPatientById(Integer id){
+        return pacienteRepository.findById(id);
+    }
 }
