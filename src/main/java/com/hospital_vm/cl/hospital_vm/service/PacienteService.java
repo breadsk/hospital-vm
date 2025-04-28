@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class PacienteService {
 
     @Autowired
@@ -21,5 +22,15 @@ public class PacienteService {
 
     public Optional<Paciente> getPatientById(Integer id){
         return pacienteRepository.findById(id);
+    }
+
+    //La funcion save funciona tanto como para crear o actualizar
+
+    public Paciente save(Paciente paciente){        
+        return pacienteRepository.save(paciente);
+    }
+
+    public void delete(int id){
+        pacienteRepository.deleteById(id);
     }
 }
