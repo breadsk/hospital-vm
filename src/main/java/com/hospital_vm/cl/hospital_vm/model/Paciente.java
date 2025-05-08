@@ -19,13 +19,13 @@ public class Paciente {
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Con esto le digo que sera autoincrementable
     private Integer id;
 
-    @Column(name="run", unique=true, length = 13, nullable=false)//Con esto le digo que solo es un dato de columna
+    @Column(name="rut", unique=true, length = 13, nullable=false)//Con esto le digo que solo es un dato de columna
     @NotBlank(message = "RUT es obligatorio")
     @Pattern(
         regexp = "^[0-9]{7,8}-[0-9Kk]$",
         message = "El rut debe tener formato 12345678-9 ( Chile )"
     )
-    private String run;
+    private String rut;
 
     @Column(nullable=false)
     @NotBlank(message = "Los nombres son obligatorios")

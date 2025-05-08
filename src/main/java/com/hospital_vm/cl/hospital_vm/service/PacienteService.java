@@ -24,6 +24,10 @@ public class PacienteService {
         return pacienteRepository.findById(id);
     }
 
+    public Paciente getPatientById2(int id){
+        return pacienteRepository.findById(id).get();
+    }
+
     //La funcion save funciona tanto como para crear o actualizar
 
     public Paciente save(Paciente paciente){        
