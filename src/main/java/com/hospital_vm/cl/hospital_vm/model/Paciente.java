@@ -17,7 +17,7 @@ public class Paciente {
 
     @Id // Le indico con el decorador que este sera el id de mi tabla
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Con esto le digo que sera autoincrementable
-    private Integer id;
+    private Integer id_paciente;
 
     @Column(name="rut", unique=true, length = 13, nullable=false)//Con esto le digo que solo es un dato de columna
     @NotBlank(message = "RUT es obligatorio")

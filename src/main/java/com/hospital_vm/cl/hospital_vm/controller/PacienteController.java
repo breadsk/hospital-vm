@@ -46,8 +46,8 @@ public class PacienteController {
     }
     
 
-    @GetMapping("/listar-pacientes")
-    public List<Paciente> getAllPacientes(){
+    @GetMapping("/listar")
+    public List<Paciente> getAllPacientes(){            
         return pacienteService.findAll();
     }
    
