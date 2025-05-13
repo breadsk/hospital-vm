@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.RequestParam;
@@ -64,82 +65,69 @@ public class AtencionController {
    
     
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPatientById(@PathVariable Integer id){
-        Optional<Atencion> atencion = atencionService.getAtentiontById(id);
-
-        if(atencion.isPresent()){
-            //Respuesta exitosa con cabeceras personalizadas (opcional)
-            return ResponseEntity.ok()
-                    .header("mi-encabezado", "valor")
-                    .body(atencion.get());
-        } else {
-            //Respuesta de error con cuerpo personalizado ( ej: JSON con mensaje)
-            Map<String,String> errorBody = new HashMap<>();
-            errorBody.put("message","No se encontró la atencion con ID: " + id);
-            errorBody.put("status","404");
-            errorBody.put("timestamp",LocalDateTime.now().toString());
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(errorBody);
-        }
-
-        //Se usa <?> para permitir que el método retorne:
-        //1. Un objeto Paciente ( en caso de éxito, código 200)
-        //2. Un objeto de error personalizado(en caso de fallo, código 404)
-
-        //Al usar <?>, no estas limitando el cuerpo de la respuesta a un único tipo (como Paciente)
-        //Si no que permites múltiples tipos en la respuesta
+    public ResponseEntity<?> getAtentiontById(@PathVariable Integer id){
+        return atencionService.getAtentiontById(id)
+            .map(atencion -> ResponseEntity.ok(atencion))
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    
     @PostMapping
-    public ResponseEntity<?> save(@Valid @RequestBody AtencionDTO atencionDTO){
+    public ResponseEntity<?> save(@Valid @RequestBody AtencionDTO atencionDTO) {
         try{
 
-            Paciente paciente = pacienteRepository.findById(atencionDTO.getId_paciente())
-                                        .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-
-            //Convertir DTO a Entidad
-            Atencion atencion = new Atencion();
-            atencion.setFecha_atencion(atencionDTO.getFecha_atencion());
-            atencion.setCosto(atencionDTO.getCosto());
-            atencion.setPaciente(paciente);
-            atencion.setComentario(atencionDTO.getComentario());
-
-            //Guardar
-            Atencion nuevaAtencion = atencionRepository.save(atencion);
-
+            Atencion nuevaAtencion = atencionService.save(atencionDTO);
             return ResponseEntity.ok(nuevaAtencion);
 
-            
-        } catch(DataIntegrityViolationException e){
-            //Ejemplo: Error si hay un campo único duplicado (ej: email repetido)
-            Map<String,String> error = new HashMap<>();
-            error.put("message","El email ya está registrado");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);//Error 409
+        }catch(DataIntegrityViolationException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message","Error de restriccion: " + e.getMostSpecificCause().getMessage()));
+        }catch(RuntimeException e){
+            return ResponseEntity.badRequest()
+                .body(Map.of("message",e.getMessage()));
         }
-        
+            
     }
     
-    // @PutMapping("/{id}")
-    // public ResponseEntity<Atencion> update(@PathVariable int id,@RequestBody Atencion atencion){
-    //     try{
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAtention(@PathVariable Integer id,@Valid @RequestBody AtencionDTO atencionDTO){
+        try{
 
-    //         Paciente paciente = 
+            //1. Verificar que la atención exista
+            Atencion atencionExistente = atencionRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Atención no encontrada"));
 
-    //         Atencion ate = atencionService.getPatientById2(id);
-    //         ate.setId_atencion(id);
-    //         ate.setFecha_atencion(atencion.getFecha_atencion());
-    //         ate.setHora_atencion(atencion.getHora_atencion());
-    //         ate.setCosto(atencion.getCosto());
-    //         ate.setPaciente(null);
+            //2. Buscar paciente (sin validaciones adicionales)
+            Paciente paciente = pacienteRepository.findById(atencionDTO.getId_paciente())
+                .orElseThrow(()-> new RuntimeException("Paciente no encontrado"));
+                
+            //3. Actualizar campos
+            atencionExistente.setFecha_atencion(atencionDTO.getFecha_atencion());
+            atencionExistente.setHora_atencion(atencionDTO.getHora_atencion());
+            atencionExistente.setCosto(atencionDTO.getCosto());
+            atencionExistente.setComentario(atencionDTO.getComentario());
+            atencionExistente.setPaciente(paciente);
 
-    //         atencionService.save(atencion);
-    //         return ResponseEntity.ok(atencion);
+            //4. Guardar cambios
+            Atencion atencionActualizada = atencionRepository.save(atencionExistente);
+            return ResponseEntity.ok(atencionActualizada);
 
-    //     }catch(Exception ex){
-    //         return ResponseEntity.notFound().build();
-    //     }
-    // }
+        }catch(DataIntegrityViolationException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT)            
+                .body(Map.of("message","Error de restricción: " + e.getMostSpecificCause().getMessage()));
+                //¿Qué hace Map.of() en el código?
+                //Es una forma compacta y moderna (introducida en Java 9) de crear un Map (diccionario) inmutable
+                //con pares clave-valor. En tu método, se usa para construir 
+                //respuestas de error estructuradas.
+        }catch(RuntimeException e){
+            //¿Qué hace Map.of() en el código?
+            //Es una forma compacta y moderna (introducida en Java 9) de crear un Map (diccionario) inmutable
+            //con pares clave-valor. En tu método, se usa para construir 
+            //respuestas de error estructuradas.
+            return ResponseEntity.badRequest()
+                .body(Map.of("message",e.getMessage()));
+        }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable int id){

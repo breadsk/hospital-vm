@@ -1,11 +1,10 @@
 package com.hospital_vm.cl.hospital_vm.dto;
 
-
+import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 
-import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -18,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 public class AtencionDTO {
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate fecha_atencion;
     @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime hora_atencion;

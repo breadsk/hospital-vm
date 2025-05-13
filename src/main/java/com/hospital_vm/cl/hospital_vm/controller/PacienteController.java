@@ -89,7 +89,7 @@ public class PacienteController {
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
-                    .buildAndExpand(pacienteGuardado.getId())
+                    .buildAndExpand(pacienteGuardado.getId_paciente())
                     .toUri();
 
             //Respuesta exitosa con cabeceras y cuerpo
