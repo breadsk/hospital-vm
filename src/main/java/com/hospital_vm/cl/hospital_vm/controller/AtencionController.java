@@ -86,7 +86,6 @@ public class AtencionController {
             return ResponseEntity.badRequest()
                 .body(Map.of("message",e.getMessage()));
         }
-            
     }
     
     @PutMapping("/{id}")
@@ -130,16 +129,24 @@ public class AtencionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable int id){
-        try{
-
-            atencionService.delete(id);
-            return ResponseEntity.noContent().build();
-
-        }catch(Exception ex){
+    public ResponseEntity<Void> eliminar(@PathVariable int id){
+        if(!atencionService.existeAtencion(id)){
             return ResponseEntity.notFound().build();
         }
+
+        atencionService.delete(id);
+        return ResponseEntity.noContent().build();
     }
+
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<Void> eliminarAtencion(@PathVariable int id) {
+    //     return atencionService.obtenerAtencion(id)
+    //         .map(atencion -> {
+    //             atencionService.eliminarAtencion(id);
+    //             return ResponseEntity.noContent().build();
+    //         })
+    //         .orElse(ResponseEntity.notFound().build());
+    // }
 
 }
 
